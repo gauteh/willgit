@@ -8,7 +8,7 @@
 ## Probably not without some editing, because people often commit from more
 ## than one address.
 ##
-## git-rank-contributors Copyright 2008 William Morgan <wmorgan-git-wt-add@masanjin.net>. 
+## git-rank-contributors Copyright 2008 William Morgan <wmorgan-git-wt-add@masanjin.net>.
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation, either version 3 of the License, or (at
@@ -66,11 +66,13 @@ state = :pre_author
 end
 
 lines.sort_by { |a, c| -c }.each do |a, c|
-  a = a.obfuscate if obfuscate
+  e = emails[a]
+  e = e.obfuscate if obfuscate
+  e = e.htmlize if htmlize
   a = a.htmlize if htmlize
   if verbose
-    puts "#{a} <#{emails[a]}>: #{c} lines of diff"
+    puts "#{a} <#{e}>: #{c} lines of diff"
   else
-    puts "#{a} <#{emails[a]}>"
+    puts "#{a} <#{e}>"
   end
 end

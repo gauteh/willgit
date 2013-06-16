@@ -66,13 +66,13 @@ state = :pre_author
 end
 
 lines.sort_by { |a, c| -c }.each do |a, c|
-  e = emails[a]
+  e = "<#{emails[a]}>"
   e = e.obfuscate if obfuscate
   e = e.htmlize if htmlize
   a = a.htmlize if htmlize
   if verbose
-    puts "#{a} <#{e}>: #{c} lines of diff"
+    puts "#{a} #{e}: #{c} lines of diff"
   else
-    puts "#{a} <#{e}>"
+    puts "#{a} #{e}"
   end
 end

@@ -28,18 +28,34 @@ class String
 end
 
 lines = {}
+emails = {}
 verbose = ARGV.delete("-v")
 obfuscate = ARGV.delete("-o")
 htmlize = ARGV.delete("-h")
 
+aliases = { 'wmorgan' => 'William Morgan',
+            'mish'    => 'Hamish Downer',
+          }
+
 author = nil
 state = :pre_author
 `git log -M -C -C -p --no-color`.each_line do |l|
+  l.encode!('UTF-8', :invalid => :replace, :undef => :replace)
+  unless l.valid_encoding?
+    l.encode!('UTF-16', 'UTF-8', :invalid => :replace, :undef => :replace)
+    l.encode!('UTF-8', 'UTF-16', :invalid => :replace, :undef => :replace)
+  end
+
   case
-  when (state == :pre_author || state == :post_author) && l =~ /Author: (.*)$/
+  when (state == :pre_author || state == :post_author) && l =~ /Author: (.*) <(.*)>$/
     author = $1
+    email  = $2
+
+    author = aliases[author] if aliases.has_key? author
+
     state = :post_author
     lines[author] ||= 0
+    emails[author] ||= email
   when state == :post_author && l =~ /^\+\+\+/
     state = :in_diff
   when state == :in_diff && l =~ /^[\+\-]/
@@ -53,8 +69,8 @@ lines.sort_by { |a, c| -c }.each do |a, c|
   a = a.obfuscate if obfuscate
   a = a.htmlize if htmlize
   if verbose
-    puts "#{a}: #{c} lines of diff"
+    puts "#{a} <#{emails[a]}>: #{c} lines of diff"
   else
-    puts a
+    puts "#{a} <#{emails[a]}>"
   end
 end
